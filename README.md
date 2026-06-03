@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AasaMedChem Inventory & Order Management
 
-## Getting Started
+A full-stack starter for chemical and medical supply inventory, role dashboards, unit conversion, INR pricing, and quotation flow.
 
-First, run the development server:
+## Stack
+
+- Next.js 14 App Router
+- Neon PostgreSQL serverless
+- Drizzle ORM
+- NextAuth.js v5 credentials auth
+- Tailwind CSS
+- Server Actions
+
+## Local Setup
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+Fill `.env.local`:
+
+```bash
+DATABASE_URL="postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require"
+AUTH_SECRET="generate-a-long-random-secret"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+Create schema and seed:
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+Run the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Test Credentials
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@aasa.com` | `Admin@123` |
+| Seller | `seller@aasa.com` | `Seller@123` |
+| Buyer | `buyer@aasa.com` | `Buyer@123` |
 
-## Learn More
+Admin accounts are created by `npm run db:seed`. Public registration supports
+buyer and seller accounts only.
 
-To learn more about Next.js, take a look at the following resources:
+## Current Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Protected Admin, Seller, and Buyer workspaces.
+- Credentials login and buyer registration.
+- Drizzle schema for users, units, products, orders, and order items.
+- Unit conversion to base units for quotation saves.
+- Prices stored as paise and displayed as INR.
+- Seeded default units and sample catalog.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build Steps From Scratch
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Scaffold the app with TypeScript, Tailwind, and App Router.
+2. Add Drizzle, Neon, NextAuth v5, bcrypt, Zod, and UI icons.
+3. Define PostgreSQL enums and tables in `lib/db/schema.ts`.
+4. Configure Neon access in `lib/db/index.ts`.
+5. Configure credentials auth in `auth.ts` and expose `/api/auth`.
+6. Add middleware for protected role routes.
+7. Create seed data for roles, units, and products.
+8. Build Admin, Seller, and Buyer pages around server-side queries.
+9. Use Server Actions for login, registration, and quotation creation.
+10. Push schema, seed database, run lint/build, and deploy to Vercel.
