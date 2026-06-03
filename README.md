@@ -1,6 +1,6 @@
 # AasaMedChem Inventory & Order Management
 
-A full-stack starter for chemical and medical supply inventory, role dashboards, unit conversion, INR pricing, and quotation flow.
+A full-stack chemical and medical supply platform with role-based access, inventory management, buyer verification, seller commissions, and quotation workflows.
 
 ## Stack
 
@@ -10,6 +10,110 @@ A full-stack starter for chemical and medical supply inventory, role dashboards,
 - NextAuth.js v5 credentials auth
 - Tailwind CSS
 - Server Actions
+
+---
+
+## Directory Structure
+
+```
+aasamedchem-inventory-order-management-system-project/
+├── app/
+│   ├── (auth)/
+│   │   ├── actions.ts               # Login & registration server actions
+│   │   ├── auth-form.tsx            # Shared auth form component
+│   │   ├── login/
+│   │   │   └── page.tsx             # Login page
+│   │   └── register/
+│   │       └── page.tsx             # Buyer/Seller registration page
+│   ├── admin/
+│   │   └── page.tsx                 # Admin dashboard (flag sellers, adjust commission)
+│   ├── api/
+│   │   └── auth/
+│   │       └── [...nextauth]/
+│   │           └── route.ts         # NextAuth API route
+│   ├── buyer/
+│   │   ├── actions.ts               # Buyer server actions (order, quotation)
+│   │   ├── page.tsx                 # Buyer dashboard (browse & order products)
+│   │   └── quotation-form.tsx       # Quotation request form
+│   ├── dashboard/
+│   │   └── page.tsx                 # Role-based redirect dashboard
+│   ├── seller/
+│   │   └── page.tsx                 # Seller dashboard (list products, verify buyers)
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx                     # Landing page (Sign In / Sign Up)
+├── components/
+│   ├── dashboard-shell.tsx          # Shared dashboard layout wrapper
+│   └── db-empty-state.tsx           # Empty state UI component
+├── lib/
+│   ├── db/
+│   │   ├── index.ts                 # Drizzle + Neon DB client
+│   │   ├── queries.ts               # Reusable DB query functions
+│   │   └── schema.ts                # Drizzle schema (users, products, orders, etc.)
+│   ├── units/
+│   │   └── convert.ts               # Unit conversion to base units
+│   └── money.ts                     # Paise ↔ INR formatting helpers
+├── public/
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── scripts/
+│   └── seed.ts                      # DB seed (admin, units, sample products)
+├── types/
+│   └── next-auth.d.ts               # NextAuth session type extensions
+├── .env.example
+├── .eslintrc.json
+├── auth.config.ts
+├── auth.ts
+├── drizzle.config.ts
+├── middleware.ts                    # Route protection by role
+├── next.config.mjs
+├── package.json
+├── postcss.config.mjs
+├── README.md
+└── tsconfig.json
+```
+
+---
+
+## User Roles & Functionalities
+
+### 🛡️ Admin
+- View all sellers and buyers on the platform
+- **Flag a seller** — mark a seller as suspicious or non-compliant
+- **Adjust commission** — set or update commission percentage per seller
+- View all orders and platform-wide activity
+- Full visibility into inventory, quotations, and order statuses
+
+### 🏪 Seller
+- **List a product** — add new products with name, unit, price (in paise), and stock quantity
+- **Edit a product** — update price, stock, or product details
+- **Verify a buyer** — review buyer-submitted license and documents; approve or reject
+  - Only verified buyers can proceed to place orders
+- View quotation requests from buyers
+- Track orders associated with their products
+
+### 🛒 Buyer
+- **Register** with license and document upload (pending seller verification)
+- **Browse products** — view available catalog with INR pricing and unit info
+- **Request a quotation** — submit quantity and unit preference for a product
+- **Place an order** — only available after seller verification is approved
+- Track own order history and statuses
+
+---
+
+## Buyer Verification Flow
+
+```
+Buyer registers → Uploads license/docs → Seller reviews → Approved/Rejected
+                                                              ↓
+                                                   Buyer can now place orders
+```
+
+---
 
 ## Local Setup
 
@@ -39,37 +143,51 @@ Run the app:
 npm run dev
 ```
 
-Open http://localhost:3000.
+Open [http://localhost:3000](http://localhost:3000).
+
+---
 
 ## Test Credentials
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Admin | `admin@aasa.com` | `Admin@123` |
-| Seller | `seller@aasa.com` | `Seller@123` |
-| Buyer | `buyer@aasa.com` | `Buyer@123` |
+| Role   | Email              | Password     |
+|--------|--------------------|--------------|
+| Admin  | `admin@aasa.com`   | `Admin@123`  |
+| Seller | `seller@aasa.com`  | `Seller@123` |
+| Buyer  | `buyer@aasa.com`   | `Buyer@123`  |
 
-Admin accounts are created by `npm run db:seed`. Public registration supports
-buyer and seller accounts only.
+> Admin accounts are created via `npm run db:seed`. Public registration supports Buyer and Seller accounts only.
 
-## Current Features
+---
 
-- Protected Admin, Seller, and Buyer workspaces.
-- Credentials login and buyer registration.
-- Drizzle schema for users, units, products, orders, and order items.
-- Unit conversion to base units for quotation saves.
-- Prices stored as paise and displayed as INR.
-- Seeded default units and sample catalog.
+## Useful Scripts
 
-## Build Steps From Scratch
+```bash
+npm run db:push       # Push schema to Neon DB
+npm run db:seed       # Seed default admin, units, and products
+npm run db:studio     # Open Drizzle Studio (visual DB browser)
+npm run dev           # Start local dev server
+npm run build         # Build for production
+```
 
-1. Scaffold the app with TypeScript, Tailwind, and App Router.
-2. Add Drizzle, Neon, NextAuth v5, bcrypt, Zod, and UI icons.
-3. Define PostgreSQL enums and tables in `lib/db/schema.ts`.
-4. Configure Neon access in `lib/db/index.ts`.
-5. Configure credentials auth in `auth.ts` and expose `/api/auth`.
-6. Add middleware for protected role routes.
-7. Create seed data for roles, units, and products.
-8. Build Admin, Seller, and Buyer pages around server-side queries.
-9. Use Server Actions for login, registration, and quotation creation.
-10. Push schema, seed database, run lint/build, and deploy to Vercel.
+---
+
+## Key Implementation Notes
+
+- Prices are **stored as paise** (integer) and **displayed as INR** via `lib/money.ts`
+- Units are **converted to base units** before saving quotations via `lib/units/convert.ts`
+- Route protection is handled in `middleware.ts` based on `session.user.role`
+- Buyer access to ordering is **gated by verification status** set by the seller
+- Commission per seller is stored on the seller's user record and applied during order processing
+
+---
+
+## Deployment (Vercel + Neon)
+
+1. Push to GitHub (`main` branch auto-deploys on Vercel)
+2. Add environment variables in Vercel Dashboard → Settings → Environment Variables:
+   - `DATABASE_URL` — your Neon connection string
+   - `AUTH_SECRET` — your auth secret
+3. Run migrations on first deploy or add to build script:
+   ```bash
+   "build": "npx drizzle-kit migrate && next build"
+   ```
